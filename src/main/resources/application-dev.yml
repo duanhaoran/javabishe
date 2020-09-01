@@ -1,0 +1,27 @@
+#访问地址，端口
+server:
+  servlet:
+    context-path: /
+  url: localhost
+  port: 8080
+  #配置tomcat
+  tomcat:
+    max-threads: 300
+    max-http-post-size: 10240000
+    max-connections: 20000
+#连接池
+spring:
+  datasource:
+    platform: mysql
+    url: jdbc:mysql://localhost:3306/normal_technology?setUnicode=true&characterEncoding=utf8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+#mybatis
+mybatis:
+  mapper-locations:   classpath:mapping/*.xml
+  configuration:
+    mapUnderscoreToCamelCase: true
+#开发环境swagger开启
+swagger:
+  enabled: true
