@@ -1,9 +1,8 @@
 #访问地址，端口
 server:
   servlet:
-    context-path: /
-  url: localhost
-  port: 8080
+    context-path:
+  port: 8060
   #配置tomcat
   tomcat:
     max-threads: 300
@@ -12,11 +11,13 @@ server:
 #连接池
 spring:
   datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
     platform: mysql
-    url: jdbc:mysql://localhost:3306/normal_technology?setUnicode=true&characterEncoding=utf8
+#    url:jdbc:mysql://47.94.154.152:3306/normal_technology?useUnicode=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&zeroDateTimeBehavior=CONVERT_TO_NULL
+    url: jdbc:mysql://127.0.0.1:3306/scumbag?useUnicode=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&zeroDateTimeBehavior=CONVERT_TO_NULL
     username: root
-    password: 123456
-    driver-class-name: com.mysql.jdbc.Driver
+    password: duan
+    driver-class-name: com.mysql.cj.jdbc.Driver
 #mybatis
 mybatis:
   mapper-locations:   classpath:mapping/*.xml
@@ -25,3 +26,29 @@ mybatis:
 #开发环境swagger开启
 swagger:
   enabled: true
+
+#jwt相关信息
+jwt:
+  tokenHeader: Authorization #JWT存储的请求头
+  secret: mySecret #JWT加解密使用的密钥
+  expiration: 604800 #JWT的超期限时间(60*60*24)
+  tokenHead: DG  #JWT负载中拿到开头
+
+
+#pagehelper分页插件
+pagehelper:
+  helper-dialect: mysql
+  row-bounds-with-count: false
+  reasonable: true
+
+#用户默认密码
+user:
+  pwd : "123456"
+
+management:
+  security:
+    enabled : false
+
+#全局变量
+sqlfactory:
+  sql_system: "http://localhost:8073/"

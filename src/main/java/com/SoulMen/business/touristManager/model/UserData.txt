@@ -1,0 +1,81 @@
+name: "Userinfo",
+    data() {
+      return {
+       //面包屑
+        levelList:[],
+        //批量删除
+        multipleSelection:[],
+        //自定义查询
+        options: [{
+          value: '1',
+          label: '下拉框1'
+        }, {
+          value: '2',
+          label: '下拉框2'
+        }, {
+          value: '3',
+          label: '下拉框3'
+        }],
+        SelectModel:{
+    userId: '',
+    userName: '',
+    password: '',
+    roleId: '',
+    userAge: '',
+    userSex: '',
+    status: '',
+    userNum: '',
+    userDepartmentId: '',
+        },  
+        //分页
+        pageNum: 1,
+        pageSize: 5,
+        resultList: [],
+        resultCount: 0,
+        //模态框显示标志
+        viewVisible: false,
+        updateVisible: false,
+        insertVisible:false,
+        //详情显示
+        InfoModel:{    
+    userId: '',
+    userName: '',
+    password: '',
+    roleId: '',
+    userAge: '',
+    userSex: '',
+    status: '',
+    userNum: '',
+    userDepartmentId: '',
+        },
+        //新增信息
+        AddModel:{
+    userId: '',
+    userName: '',
+    password: '',
+    roleId: '',
+    userAge: '',
+    userSex: '',
+    status: '',
+    userNum: '',
+    userDepartmentId: '',
+        },
+        //变量
+    userId: '',
+    userName: '',
+    password: '',
+    roleId: '',
+    userAge: '',
+    userSex: '',
+    status: '',
+    userNum: '',
+    userDepartmentId: '',
+        //url
+        selectByAny:'/api/user/selectUserByAny',
+        selectOne:'/api/user/selectUserOne',
+        updateOne:'/api/user/updateUserOne',
+        insertOne:'/api/user/insertUserOne',
+        deleteByList:'/api/user/deleteUserByList',
+        deleteOne:'/api/user/deleteUserOne',
+      }
+    },

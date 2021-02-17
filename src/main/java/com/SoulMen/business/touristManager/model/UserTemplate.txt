@@ -1,0 +1,354 @@
+<template>
+  <div class="student-table-component">
+    <!-- 头部面包屑 -->
+    <el-row>
+      <el-col :span="4" >
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item v-for="item in levelList" :key="item.path" :to="item.path">{{item.meta.title}}</el-breadcrumb-item>
+        </el-breadcrumb>
+      </el-col>
+    </el-row>
+    <br>
+    <!-- 条件模糊查询 -->
+    <el-row class="drug-table-condition">
+      <!--查询条件-->
+      <el-col :span="4" :offset="1">
+        <el-input v-model="SelectModel.shopName" placeholder="店铺名称" clearable/>
+      </el-col>
+      <el-col :span="4" :offset="1">
+        <el-select v-model="SelectModel.shopLevel" placeholder="请选择店铺级别">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-col>
+      <!--查询按钮-->
+      <el-col :span="3" :offset="2">
+        <el-button type="primary"  style="width: 100%;" @click="SelectByAny()"
+                   icon="el-icon-search">查询
+        </el-button>
+      </el-col>
+    </el-row>
+    <br> 
+ <!--操作按钮-->
+    <el-row>
+      <!--批量删除按钮-->
+      <el-col :span="3" >
+        <el-button type="danger"  style="width: 80%;" @click="DeleteByList" size="small" icon="el-icon-delete">批量删除
+        </el-button>
+      </el-col>
+      <!--信息下载按钮-->
+      <el-col :span="3" :offset="8">
+        <el-button type="primary" icon="el-icon-document" size="small"
+                   @click="download(`/api/user/Exporttemplate`,'用户表信息.xls')">
+          信息下载
+        </el-button>
+      </el-col>
+      <!--信息添加按钮-->
+      <el-col :span="3" >
+        <el-button type="success" icon="el-icon-upload2"  size="small"
+                   @click="InsertWithModel">
+          信息添加
+        </el-button>
+      </el-col>
+    </el-row>
+    <!--主表格-->
+    <el-table
+      :data="resultList"
+      stripe
+      class="table"
+      style="width: 100%"
+      ref="multipleTable"
+      @selection-change="handleSelectionChange"
+    >    
+      <el-table-column
+        type="selection"
+        width="55"
+      >
+      </el-table-column>
+      <el-table-column align="center" label="#"  type="index" width="180">
+
+      </el-table-column>
+      <el-table-column
+        prop="userId"
+        label="用户ID"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+      <el-table-column
+        prop="userName"
+        label="用户名称"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+      <el-table-column
+        prop="password"
+        label="用户密码"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+      <el-table-column
+        prop="roleId"
+        label="角色Id"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+      <el-table-column
+        prop="userAge"
+        label="用户年龄"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+      <el-table-column
+        prop="userSex"
+        label="用户性别"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+      <el-table-column
+        prop="status"
+        label="帐号启用状态:0->禁用；1->启用"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+      <el-table-column
+        prop="userNum"
+        label="${column.comment}"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+      <el-table-column
+        prop="userDepartmentId"
+        label="所属部门id"
+        width="200"
+        align="center"
+      >
+       </el-table-column>
+       <el-table-column
+        fixed="right"
+        label="操作"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <!--查看详情按钮-->
+          <el-button
+            icon="el-icon-view"
+            type="primary"
+            plain
+            circle
+            size="small"
+            @click="ViewModel(scope.row.userId)"
+            class="staff-table-opera-btn">
+          </el-button>
+          <!--修改信息按钮-->
+          <el-button
+            icon="el-icon-edit"
+            type="warning"
+            plain
+            circle
+            size="small"
+            @click="UpdateModel(scope.row.userId)"
+            class="staff-table-opera-btn">
+          </el-button>
+          <!--删除详情按钮-->
+          <el-button
+            icon="el-icon-delete"
+            type="danger"
+            plain
+            circle
+            size="small"
+            @click="DeleteModel(scope.row.userId)"
+            class="staff-table-opera-btn">
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--分页-->
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pageNum"
+      :page-sizes="[5, 8, 10]"
+      :page-size="pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="resultCount"
+      class="staff-table-pagination"
+    >
+    </el-pagination>   
+    <!-- 查看详情的模态框 -->
+    <el-dialog title="店铺详情" :visible.sync="viewVisible" center width="35%" top="6vh">
+      <!-- 下划线 -->
+      <el-divider><i class="el-icon-mouse"/></el-divider>
+      <!-- 信息列 -->
+      <el-form :model="InfoModel" label-width="80px" label-position="left">
+        <el-form-item label="用户ID">
+          <span>{{ InfoModel.userId }}</span>
+        </el-form-item>
+        <el-form-item label="用户名称">
+          <span>{{ InfoModel.userName }}</span>
+        </el-form-item>
+        <el-form-item label="用户密码">
+          <span>{{ InfoModel.password }}</span>
+        </el-form-item>
+        <el-form-item label="角色Id">
+          <span>{{ InfoModel.roleId }}</span>
+        </el-form-item>
+        <el-form-item label="用户年龄">
+          <span>{{ InfoModel.userAge }}</span>
+        </el-form-item>
+        <el-form-item label="用户性别">
+          <span>{{ InfoModel.userSex }}</span>
+        </el-form-item>
+        <el-form-item label="帐号启用状态:0->禁用；1->启用">
+          <span>{{ InfoModel.status }}</span>
+        </el-form-item>
+        <el-form-item label="${column.comment}">
+          <span>{{ InfoModel.userNum }}</span>
+        </el-form-item>
+        <el-form-item label="所属部门id">
+          <span>{{ InfoModel.userDepartmentId }}</span>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 修改详情的模态框 -->
+    <el-dialog title="信息修改" :visible.sync="updateVisible" center width="40%" top="6vh">
+      <!-- 下划线 -->
+      <el-divider><i class="el-icon-mouse"/></el-divider>
+      <!-- 信息添加 -->
+      <el-form :model="InfoModel" label-width="80px" label-position="left" >
+        <!--信息列表-->      
+        <el-form-item label="用户ID" prop="userId">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.userId" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="用户名称" prop="userName">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.userName" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="用户密码" prop="password">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.password" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="角色Id" prop="roleId">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.roleId" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="用户年龄" prop="userAge">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.userAge" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="用户性别" prop="userSex">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.userSex" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="帐号启用状态:0->禁用；1->启用" prop="status">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.status" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="${column.comment}" prop="userNum">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.userNum" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="所属部门id" prop="userDepartmentId">
+          <el-col :span="12">
+            <el-input v-model="InfoModel.userDepartmentId" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <!--信息修改按钮-->
+        <el-form-item>
+          <el-col :span="6">
+            <el-button type="success" style="width: 100%;" round @click="handleUpdate()">修改信息</el-button>
+          </el-col>
+          <el-col :span="6" :offset="6">
+            <el-button type="warning" style="width: 100%;" round @click="updateVisible = false">
+              取消修改
+            </el-button>
+          </el-col>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <!-- 信息添加 -->
+    <el-dialog title="信息添加" :visible.sync="insertVisible" center width="40%" top="6vh">
+      <!-- 下划线 -->
+      <el-divider><i class="el-icon-mouse"/></el-divider>
+      <el-form :model="AddModel"  label-width="90px" label-position="left">
+        <!-- 信息列表 -->
+        <el-form-item label="用户ID" prop="userId">
+          <el-col :span="12">
+            <el-input v-model="AddModel.userId" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="用户名称" prop="userName">
+          <el-col :span="12">
+            <el-input v-model="AddModel.userName" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="用户密码" prop="password">
+          <el-col :span="12">
+            <el-input v-model="AddModel.password" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="角色Id" prop="roleId">
+          <el-col :span="12">
+            <el-input v-model="AddModel.roleId" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="用户年龄" prop="userAge">
+          <el-col :span="12">
+            <el-input v-model="AddModel.userAge" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="用户性别" prop="userSex">
+          <el-col :span="12">
+            <el-input v-model="AddModel.userSex" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="帐号启用状态:0->禁用；1->启用" prop="status">
+          <el-col :span="12">
+            <el-input v-model="AddModel.status" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="${column.comment}" prop="userNum">
+          <el-col :span="12">
+            <el-input v-model="AddModel.userNum" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <el-form-item label="所属部门id" prop="userDepartmentId">
+          <el-col :span="12">
+            <el-input v-model="AddModel.userDepartmentId" clearable style="width: 300px" />
+          </el-col>
+        </el-form-item>
+        <!-- 操作按钮 -->
+        <el-form-item>
+          <el-col :span="6">
+            <el-button type="success" style="width: 100%;" round @click="handleInsert()">信息添加</el-button>
+          </el-col>
+          <el-col :span="6" :offset="6">
+            <el-button type="warning" style="width: 100%;" round @click="insertVisible = false">
+              取消修改
+            </el-button>
+          </el-col>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+  </div>
+</template>
